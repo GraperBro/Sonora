@@ -1,0 +1,59 @@
+name: SONORA checks
+on:
+  push:
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Python source
+        run: python -m py_compile app.py
+      - name: Validate browser JavaScript
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.inside = False
+                  self.js = ""
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script":
+                      self.inside = True
+              def handle_endtag(self, tag):
+                  if tag == "script":
+                      self.inside = False
+              def handle_data(self, data):
+                  if self.inside:
+                      self.js += data
+          parser = Scripts()
+          parser.feed(Path("templates/index.html").read_text(encoding="utf8"))
+          assert parser.js.strip(), "No JavaScript found"
+          Path("/tmp/sonora-inline.js").write_text(parser.js, encoding="utf8")
+          PY
+          node --check /tmp/sonora-inline.js
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+      - name: Smoke test application
+        run: |
+          python - <<'PY'
+          from app import app, canonical_url
+          client = app.test_client()
+          assert client.get("/healthz").status_code == 200
+          response = client.get("/")
+          assert response.status_code == 200
+          assert b"SONORA" in response.data or b"sonora" in response.data
+          assert canonical_url("https://youtu.be/dQw4w9WgXcQ")[1] == "dQw4w9WgXcQ"
+          try:
+              canonical_url("https://not-youtube.example/v")
+              raise AssertionError("Unsafe URL was accepted")
+          except ValueError:
+              pass
+          assert client.post("/api/download", json={"url":"bad"}).status_code == 400
+          print("Basic checks passed")
+          PY
