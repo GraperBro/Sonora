@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sonora-audio
+    runtime: docker
+    plan: free
+    region: frankfurt
+    autoDeployTrigger: commit
+    healthCheckPath: /healthz
+    envVars:
+      - key: PUBLIC_DEPLOYMENT
+        value: "1"
+      - key: APP_PASSWORD
+        sync: false
