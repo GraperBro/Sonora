@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b16">
+  <meta name="description" content="SONORA — сохранение разрешённых аудиодорожек с YouTube. Исходный формат и MP3.">
+  <title>SONORA — сохрани звук</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0b16;--card:#171729;--line:#302d48;--muted:#a3a3bc;--light:#fafaff;--purple:#b59eff;--cyan:#87eced}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse 50% 27% at 55% -5%,#58418835,transparent 85%),radial-gradient(ellipse 30% 38% at 95% 84%,#20a9d51a,transparent 85%),var(--bg);color:var(--light);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:disabled{opacity:.5;cursor:wait}
+    [hidden]{display:none!important}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+    header{height:96px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff13}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:850;font-size:28px;letter-spacing:-1.3px}
+    .mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:#b6a4ff;background:#bba7ff18;border:1px solid #bba7ff35}
+    .brand .dot{color:var(--purple)}
+    .nav{font-size:10px;font-weight:800;letter-spacing:2px;color:#c5c0db}
+    .green{display:inline-block;background:#8bffbc;width:7px;height:7px;border-radius:100%;box-shadow:0 0 12px #8bffbc;margin-right:9px}
+    main{padding:62px 0}
+    .eyebrow{color:#b4a4e0;font-size:11px;font-weight:800;letter-spacing:2px;margin:0 0 18px}
+    h1{font-size:clamp(42px,5.8vw,70px);letter-spacing:-3px;line-height:1.13;margin:0 0 17px;font-weight:850}
+    h1 span{background:linear-gradient(100deg,#bca5ff,#9dbfff,#8eece2);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:15px;color:var(--muted);line-height:1.8;max-width:600px;margin:0 0 47px}
+    .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:20px;align-items:start}
+    .panel{border:1px solid #ffffff15;background:linear-gradient(140deg,#1b1b2d,#101424);border-radius:22px;box-shadow:0 15px 55px #0003}
+    .converter{padding:31px}
+    .panel-head{display:flex;gap:15px;align-items:center;margin-bottom:33px}
+    .panel-icon{width:48px;height:48px;border:1px solid #a58bff48;border-radius:13px;display:grid;place-items:center;background:#a58bff13;color:#d2c6ff;font-size:24px}
+    .step{font-size:10px;color:#b4a5df;letter-spacing:1.7px;font-weight:900}
+    h2{font-size:24px;letter-spacing:-.8px;line-height:1.2;margin:5px 0 0}
+    label.field{font-size:13px;font-weight:750;display:block;margin:0 0 11px}
+    .inputbox{border:1px solid #55506b;background:#0d1020;border-radius:13px;padding:7px;display:flex;gap:7px;align-items:center;height:61px}
+    .inputbox:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px #a68bff18}
+    .linkicon{font-size:22px;color:#9592b7;margin:0 7px}
+    #url{flex:1;width:10px;min-width:0;border:0;outline:0;background:none;color:white;font-size:13px}
+    #url::placeholder{color:#75718f}
+    .paste{background:#ffffff10;border:1px solid #514b6a;color:#d5caed;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:750}
+    .hint{font-size:11px;color:#8889aa;margin:10px 0 22px}
+    .primary{width:100%;border:0;border-radius:12px;height:55px;background:linear-gradient(110deg,#bea6ff,#a4a5ff 52%,#9bddec);color:#160f2a;font-weight:850;font-size:14px;transition:transform .15s}
+    .primary:hover:not(:disabled){transform:translateY(-1px)}
+    .primary span{font-size:20px;margin-left:9px}
+    .status{border-radius:12px;padding:13px 15px;color:#d7c6ff;border:1px solid #a28cff45;background:#a38bff13;font-size:13px;line-height:1.5;margin:18px 0 0}
+    .status.error{border-color:#ff849553;color:#ffbec8;background:#ff778818}
+    .status.success{border-color:#60e3a756;color:#a9f4cd;background:#60e3a715}
+    #result{margin-top:28px;padding-top:24px;border-top:1px solid #ffffff1b}
+    .ok{color:#bbefdc;font-weight:750;font-size:12px;margin:0 0 14px}
+    .preview{display:flex;gap:15px;align-items:center;background:#101324;border:1px solid #ffffff18;padding:12px;border-radius:13px}
+    #thumbnail{width:118px;height:75px;object-fit:cover;border-radius:8px;background:#272438}
+    .meta{min-width:0}
+    #title{font-size:13px;line-height:1.4;font-weight:850;margin-bottom:5px;max-height:38px;overflow:hidden}
+    #channel{font-size:12px;color:#9294b1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #duration{display:inline-block;font-size:10px;color:#b4a8d0;margin-top:7px}
+    .choices-title{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800;margin:26px 0 12px}
+    .choices-title small{font-size:10px;color:#a899da;letter-spacing:1px}
+    .choice{display:flex;align-items:center;gap:14px;padding:13px 15px;background:#111426;border:1px solid #37364b;border-radius:11px;margin-bottom:9px;cursor:pointer}
+    .choice:has(input:checked){border-color:#af97ff;background:#a48aff12}
+    .choice input{accent-color:#b49dff;width:17px;height:17px}
+    .choice-copy{flex:1}
+    .choice-copy strong{display:block;font-size:13px}
+    .choice-copy small{display:block;font-size:11px;color:#a3a0b9;margin-top:4px}
+    .best{font-size:9px;font-weight:850;color:#c6b8ff;background:#a18bff20;padding:6px;border-radius:5px;white-space:nowrap}
+    #download{margin-top:12px}
+    .quality{font-size:11px;color:#8589a8;margin:12px 0 0;line-height:1.65}
+    aside{display:grid;gap:18px}
+    .art{min-height:327px;position:relative;overflow:hidden;padding:22px;background:linear-gradient(130deg,#292249,#171a2e 75%)}
+    .art-top{display:flex;justify-content:space-between;gap:10px;font-size:9px;letter-spacing:1.5px;font-weight:850;color:#c5bbeb}
+    .art-center{height:232px;display:grid;place-items:center;position:relative}
+    .orbit{position:absolute;border:1px dashed #beabff44;width:214px;height:214px;border-radius:50%}
+    .orbit.b{width:179px;height:179px;border-style:solid}
+    .record{width:148px;height:148px;border-radius:50%;border:1px solid #c4aeff55;box-shadow:0 0 50px #916aff43;background:repeating-radial-gradient(circle,#26213f 0px,#181b2d 3px,#343151 4px,#171a2c 6px);display:grid;place-items:center;animation:spin 22s linear infinite}
+    .record-inner{width:62px;height:62px;display:grid;place-items:center;background:linear-gradient(140deg,#bda4ff,#84dce1);border-radius:50%;color:#211b3f;font-size:31px}
+    .bars{display:flex;gap:4px;align-items:center;justify-content:center;height:30px}
+    .bars i{width:4px;height:var(--h);max-height:27px;border-radius:6px;background:linear-gradient(#cba9ff,#8be9e7)}
+    .features{padding:26px}
+    .features h3{font-size:11px;letter-spacing:1.7px;color:#b6a6e5;margin:0 0 25px}
+    .feature{display:flex;gap:14px;margin:17px 0;padding-bottom:16px;border-bottom:1px solid #ffffff13}
+    .feature:last-child{border:0;margin-bottom:0;padding-bottom:0}
+    .number{color:#ac9add;font-size:11px;font-weight:850}
+    .feature strong{font-size:13px}
+    .feature p{font-size:12px;color:#9192ae;line-height:1.7;margin:6px 0 0}
+    footer{color:#797b98;border-top:1px solid #ffffff13;padding:25px 0 33px;font-size:11px;display:flex;justify-content:space-between;gap:25px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}aside{grid-template-columns:1fr 1fr}.wrap{padding:0 20px}.art{min-height:327px}}
+    @media(max-width:620px){header{height:76px}.wrap{padding:0 16px}.brand{font-size:24px}.nav{font-size:9px;letter-spacing:.8px}main{padding:45px 0}.lead{font-size:13px;margin-bottom:32px}h1{font-size:41px;letter-spacing:-2px}.converter{padding:22px 17px}.panel-head{margin-bottom:29px}h2{font-size:22px}aside{grid-template-columns:1fr}.preview img{width:97px!important}footer{flex-direction:column;gap:8px}}
+    @media(prefers-reduced-motion:reduce){.record{animation:none}*{transition:none!important}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><div class="mark" aria-hidden="true">♫</div>sonora<span class="dot">.</span></div>
+  <div class="nav"><span class="green"></span>AUDIO EXTRACTOR / 01</div>
+</header>
+<main>
+  <div class="eyebrow">— ТВОЙ ЗВУК. ТВОЙ ФОРМАТ.</div>
+  <h1>Всё, что нужно —<br><span>оставить звук.</span></h1>
+  <p class="lead">Сохраняй аудиодорожки из видео YouTube, которые тебе разрешено скачивать. Просто вставь ссылку и выбери формат — остальное сделает SONORA.</p>
+  <div class="layout">
+    <section class="panel converter" aria-labelledby="converter-title">
+      <div class="panel-head"><div class="panel-icon" aria-hidden="true">↗</div><div><div class="step">01 / КОНВЕРТЕР</div><h2 id="converter-title">Начнём со ссылки</h2></div></div>
+      <form id="form">
+        <label class="field" for="url">Ссылка на видео YouTube</label>
+        <div class="inputbox">
+          <span class="linkicon" aria-hidden="true">↗</span>
+          <input id="url" type="url" placeholder="https://youtube.com/watch?v=..." autocomplete="url" required>
+          <button class="paste" id="paste" type="button">Вставить</button>
+        </div>
+        <p class="hint">Видео, Shorts, короткие ссылки youtu.be</p>
+        <button type="submit" id="inspect" class="primary">Найти аудио <span>↗</span></button>
+      </form>
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+      <div id="result" hidden>
+        <p class="ok">✓ Видео найдено</p>
+        <div class="preview">
+          <img id="thumbnail" alt="Обложка видео" referrerpolicy="no-referrer">
+          <div class="meta"><div id="title"></div><div id="channel"></div><span id="duration"></span></div>
+        </div>
+        <div class="choices-title">Формат аудио <small>02 / ВЫБОР</small></div>
+        <label class="choice"><input name="format" value="original" type="radio" checked><span class="choice-copy"><strong>Оригинал</strong><small>Без повторного перекодирования</small></span><span class="best">ЛУЧШЕЕ КАЧЕСТВО</span></label>
+        <label class="choice"><input name="format" value="mp3_320" type="radio"><span class="choice-copy"><strong>MP3 · 320 кбит/с</strong><small>Максимальная совместимость</small></span></label>
+        <label class="choice"><input name="format" value="mp3_192" type="radio"><span class="choice-copy"><strong>MP3 · 192 кбит/с</strong><small>Меньший размер файла</small></span></label>
+        <button id="download" type="button" class="primary">↓ Скачать аудио</button>
+        <p class="quality">MP3 320 кбит/с не улучшает качество исходника. Для сохранения оригинального потока выбери «Оригинал».</p>
+      </div>
+    </section>
+    <aside>
+      <section class="panel art" aria-label="Декоративная аудиовизуализация">
+        <div class="art-top"><span>THE SOUND IS YOURS</span><span>◉ HQ AUDIO</span></div>
+        <div class="art-center"><div class="orbit"></div><div class="orbit b"></div><div class="record"><div class="record-inner">♫</div></div></div>
+        <div class="bars" aria-hidden="true"><i style="--h:12px"></i><i style="--h:22px"></i><i style="--h:15px"></i><i style="--h:27px"></i><i style="--h:18px"></i><i style="--h:24px"></i><i style="--h:13px"></i><i style="--h:27px"></i><i style="--h:17px"></i><i style="--h:23px"></i><i style="--h:12px"></i></div>
+      </section>
+      <section class="panel features">
+        <h3>ПОЧЕМУ SONORA</h3>
+        <div class="feature"><span class="number">01</span><div><strong>Звук без видео</strong><p>Сохраняй только аудиодорожку, без видеоряда.</p></div></div>
+        <div class="feature"><span class="number">02</span><div><strong>Никакой рекламы</strong><p>Чистый интерфейс, ничего лишнего.</p></div></div>
+        <div class="feature"><span class="number">03</span><div><strong>Выбор качества</strong><p>Исходный формат или удобный MP3.</p></div></div>
+      </section>
+    </aside>
+  </div>
+</main>
+<footer><span>© SONORA — AUDIO UTILITY</span><span>Скачивай только материалы, на которые у тебя есть разрешение.</span></footer>
+</div>
+<script>
+(function () {
+  'use strict';
+  const get = id => document.getElementById(id);
+  let current = '';
+  let busy = false;
+  function status(message, type) {
+    const node = get('status');
+    node.textContent = message || '';
+    node.hidden = !message;
+    node.className = 'status' + (type ? ' ' + type : '');
+  }
+  function working(active, phase) {
+    busy = active;
+    get('inspect').disabled = active;
+    get('download').disabled = active;
+    get('paste').disabled = active;
+    get('inspect').textContent = active && phase === 'info' ? 'Ищем видео…' : 'Найти аудио ↗';
+    get('download').textContent = active && phase === 'download' ? 'Подготавливаем файл…' : '↓ Скачать аудио';
+  }
+  function duration(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return 'Длительность неизвестна';
+    const minutes = Math.floor(seconds / 60);
+    const secs = String(Math.floor(seconds % 60)).padStart(2, '0');
+    return String(minutes) + ':' + secs;
+  }
+  async function errorText(res) {
+    try { const info = await res.json(); return info.error || 'Ошибка сервера (' + res.status + ')'; }
+    catch (err) { return 'Ошибка сервера (' + res.status + ')'; }
+  }
+  get('url').addEventListener('input', function () {
+    if (this.value.trim() !== current) { get('result').hidden = true; current = ''; }
+    status('');
+  });
+  get('paste').addEventListener('click', async function () {
+    try {
+      get('url').value = (await navigator.clipboard.readText()).trim();
+      get('url').dispatchEvent(new Event('input'));
+    } catch (err) {
+      status('Не получилось прочитать буфер обмена. Вставь ссылку вручную.', 'error');
+    }
+  });
+  get('form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (busy) return;
+    const url = get('url').value.trim();
+    if (!url) { status('Вставь ссылку YouTube.', 'error'); return; }
+    working(true, 'info');
+    get('result').hidden = true;
+    status('Получаем информацию о видео…');
+    try {
+      const res = await fetch('/api/info?url=' + encodeURIComponent(url));
+      if (!res.ok) throw new Error(await errorText(res));
+      const video = await res.json();
+      get('title').textContent = video.title;
+      get('channel').textContent = video.channel;
+      get('thumbnail').src = video.thumbnail;
+      get('duration').textContent = duration(video.duration);
+      current = url;
+      get('result').hidden = false;
+      status('');
+    } catch (err) { status(err.message || 'Ошибка поиска видео.', 'error'); }
+    finally { working(false); }
+  });
+  get('download').addEventListener('click', async function () {
+    if (!current || busy) return;
+    const format = document.querySelector('input[name="format"]:checked').value;
+    working(true, 'download');
+    status('Загружаем и обрабатываем аудио. Это может занять некоторое время…');
+    try {
+      const res = await fetch('/api/download', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: current, format: format})
+      });
+      if (!res.ok) throw new Error(await errorText(res));
+      const blob = await res.blob();
+      if (!blob.size) throw new Error('Файл оказался пустым.');
+      const disposition = res.headers.get('Content-Disposition') || '';
+      let filename = 'sonora-audio.' + (format === 'original' ? 'webm' : 'mp3');
+      const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+      const simple = disposition.match(/filename="?([^";]+)"?/i);
+      if (encoded) {
+        try { filename = decodeURIComponent(encoded[1]); } catch (err) {}
+      } else if (simple) filename = simple[1];
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = objectUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(function () { URL.revokeObjectURL(objectUrl); }, 60000);
+      status('Готово! Файл отправлен в загрузки браузера.', 'success');
+    } catch (err) { status(err.message || 'Ошибка при скачивании.', 'error'); }
+    finally { working(false); }
+  });
+})();
+</script>
+</body>
+</html>
