@@ -1,0 +1,33 @@
+name: Build auto-off alarm APK
+on:
+  push:
+    branches: [auto-off-alarm-apk]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack standalone Android project
+        run: mkdir -p alarm-app && unzip -q alarm-app-src.zip -d alarm-app
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Compile APK
+        working-directory: alarm-app
+        run: gradle :app:assembleDebug --no-daemon
+      - name: Upload ready-to-install APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoOffAlarm-debug-APK
+          path: alarm-app/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
